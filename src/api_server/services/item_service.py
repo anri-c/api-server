@@ -10,6 +10,7 @@ from decimal import Decimal
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 
+from ..logging_config import get_logger, log_database_operation
 from ..models.item import Item, ItemCreate, ItemUpdate
 from ..repositories.item_repository import (
     ItemAccessDeniedError,
@@ -24,7 +25,6 @@ from ..schemas.item_schemas import (
     ItemWithUser,
     UserSummary,
 )
-from ..logging_config import get_logger, log_database_operation
 
 logger = get_logger("item_service")
 
@@ -106,16 +106,16 @@ class ItemService:
                 extra={
                     "user_id": user_id,
                     "item_name": item_data.name,
-                    "item_price": float(item_data.price)
-                }
+                    "item_price": float(item_data.price),
+                },
             )
-            
+
             # Validate user exists
             user = await self.user_repository.get_by_id(user_id)
             if not user:
                 logger.warning(
                     f"Attempted to create item for non-existent user {user_id}",
-                    extra={"user_id": user_id}
+                    extra={"user_id": user_id},
                 )
                 raise ItemServiceError(
                     f"User with id {user_id} not found", status_code=404
@@ -126,22 +126,18 @@ class ItemService:
 
             # Create item
             item = self.item_repository.create(item_data, user_id)
-            
+
             log_database_operation(
                 operation="INSERT",
                 table="items",
                 success=True,
                 user_id=user_id,
-                item_id=item.id
+                item_id=item.id,
             )
-            
+
             logger.info(
                 f"Item created successfully for user {user_id}",
-                extra={
-                    "user_id": user_id,
-                    "item_id": item.id,
-                    "item_name": item.name
-                }
+                extra={"user_id": user_id, "item_id": item.id, "item_name": item.name},
             )
 
             return self._convert_to_response(item)
@@ -149,7 +145,7 @@ class ItemService:
         except ItemValidationError as e:
             logger.warning(
                 f"Item validation failed for user {user_id}: {e.message}",
-                extra={"user_id": user_id, "validation_error": e.message}
+                extra={"user_id": user_id, "validation_error": e.message},
             )
             raise
         except SQLAlchemyError as e:
@@ -158,24 +154,24 @@ class ItemService:
                 table="items",
                 success=False,
                 error=str(e),
-                user_id=user_id
+                user_id=user_id,
             )
-            
+
             if "user_id" in str(e) and "does not exist" in str(e):
                 logger.error(
                     f"Foreign key constraint failed for user {user_id}",
-                    extra={"user_id": user_id, "error": str(e)}
+                    extra={"user_id": user_id, "error": str(e)},
                 )
                 raise ItemServiceError(
                     f"User with id {user_id} not found",
                     status_code=404,
                     original_error=e,
                 ) from e
-            
+
             logger.error(
                 f"Database error creating item for user {user_id}: {str(e)}",
                 exc_info=True,
-                extra={"user_id": user_id}
+                extra={"user_id": user_id},
             )
             raise ItemServiceError(
                 f"Failed to create item: {str(e)}", status_code=500, original_error=e
@@ -184,7 +180,7 @@ class ItemService:
             logger.error(
                 f"Unexpected error creating item for user {user_id}: {str(e)}",
                 exc_info=True,
-                extra={"user_id": user_id}
+                extra={"user_id": user_id},
             )
             raise ItemServiceError(
                 f"Unexpected error creating item: {str(e)}",
@@ -192,9 +188,7 @@ class ItemService:
                 original_error=e,
             ) from e
 
-    async def get_item_by_id(
-        self, item_id: int, user_id: int
-    ) -> ItemResponse | None:
+    async def get_item_by_id(self, item_id: int, user_id: int) -> ItemResponse | None:
         """Get item by ID for the specified user.
 
         Args:

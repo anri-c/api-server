@@ -4,7 +4,6 @@ This module provides the ItemRepository class that handles all database operatio
 for items, including CRUD operations, user-scoped queries, and transaction management.
 """
 
-
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlmodel import Session, and_, asc, desc, select
@@ -239,8 +238,7 @@ class ItemRepository:
             raise
         except SQLAlchemyError as e:
             raise SQLAlchemyError(
-                f"Database error while retrieving items for user {user_id}: "
-                f"{str(e)}"
+                f"Database error while retrieving items for user {user_id}: {str(e)}"
             ) from e
 
     def count_for_user(self, user_id: int) -> int:
@@ -266,8 +264,7 @@ class ItemRepository:
 
         except SQLAlchemyError as e:
             raise SQLAlchemyError(
-                f"Database error while counting items for user {user_id}: "
-                f"{str(e)}"
+                f"Database error while counting items for user {user_id}: {str(e)}"
             ) from e
 
     def update(self, item_id: int, user_id: int, item_data: ItemUpdate) -> Item:
@@ -412,8 +409,7 @@ class ItemRepository:
 
         except SQLAlchemyError as e:
             raise SQLAlchemyError(
-                f"Database error while searching items for user {user_id}: "
-                f"{str(e)}"
+                f"Database error while searching items for user {user_id}: {str(e)}"
             ) from e
 
     def get_user_items_by_price_range(

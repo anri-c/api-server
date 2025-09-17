@@ -1,2 +1,3 @@
 def main() -> None:
-    print("Hello from api-server!")
+    """Main entry point for the API server."""
+    pass

@@ -4,16 +4,18 @@ This module provides SQLModel engine setup, connection pooling, session manageme
 and database initialization utilities for the API server.
 """
 
-from typing import Generator, Any
-from sqlmodel import SQLModel, create_engine, Session
-from sqlalchemy.pool import QueuePool
+from collections.abc import Generator
 from contextlib import asynccontextmanager
+from typing import Any
+
 from fastapi import FastAPI
+from sqlalchemy.pool import QueuePool
+from sqlmodel import Session, SQLModel, create_engine
 
 from .config import settings
-# Import models to register them with SQLModel
-from .models import User, Item  # noqa: F401
 
+# Import models to register them with SQLModel
+from .models import Item, User  # noqa: F401
 
 # Create database engine with connection pooling
 engine = create_engine(
@@ -26,19 +28,21 @@ engine = create_engine(
     poolclass=QueuePool,  # Use QueuePool for connection pooling
     connect_args={
         "check_same_thread": False  # Required for SQLite, ignored for PostgreSQL
-    } if settings.database_url.startswith("sqlite") else {}
+    }
+    if settings.database_url.startswith("sqlite")
+    else {},
 )
 
 
-def get_session() -> Generator[Session, None, None]:
+def get_session() -> Generator[Session]:
     """Dependency to get database session.
-    
+
     This function provides a database session for dependency injection
     in FastAPI endpoints. The session is automatically closed after use.
-    
+
     Yields:
         Session: SQLModel database session
-        
+
     Example:
         @app.get("/items/")
         def get_items(session: Session = Depends(get_session)):
@@ -56,10 +60,10 @@ def get_session() -> Generator[Session, None, None]:
 
 def create_db_and_tables() -> None:
     """Create database tables based on SQLModel definitions.
-    
+
     This function creates all tables defined in SQLModel models.
     It should be called during application startup.
-    
+
     Note:
         This function is idempotent - it won't recreate existing tables.
     """
@@ -68,10 +72,10 @@ def create_db_and_tables() -> None:
 
 def drop_db_and_tables() -> None:
     """Drop all database tables.
-    
+
     This function drops all tables defined in SQLModel models.
     Use with caution - this will delete all data!
-    
+
     Warning:
         This function will permanently delete all data in the database.
         Only use for testing or development purposes.
@@ -80,18 +84,18 @@ def drop_db_and_tables() -> None:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> Generator[None, None, None]:
+async def lifespan(app: FastAPI) -> Generator[None]:
     """FastAPI lifespan context manager for database initialization.
-    
+
     This context manager handles database setup during application startup
     and cleanup during shutdown.
-    
+
     Args:
         app: FastAPI application instance
-        
+
     Yields:
         None: Control to the application
-        
+
     Example:
         app = FastAPI(lifespan=lifespan)
     """
@@ -104,31 +108,33 @@ async def lifespan(app: FastAPI) -> Generator[None, None, None]:
 
 def get_database_info() -> dict[str, Any]:
     """Get database connection information for health checks.
-    
+
     Returns:
         dict: Database connection information including URL and pool status
-        
+
     Example:
         info = get_database_info()
         print(f"Database URL: {info['url']}")
         print(f"Pool size: {info['pool_size']}")
     """
     return {
-        "url": settings.database_url.split("@")[-1] if "@" in settings.database_url else settings.database_url,  # Hide credentials
+        "url": settings.database_url.split("@")[-1]
+        if "@" in settings.database_url
+        else settings.database_url,  # Hide credentials
         "pool_size": engine.pool.size(),
         "checked_in": engine.pool.checkedin(),
         "checked_out": engine.pool.checkedout(),
         "overflow": engine.pool.overflow(),
-        "invalid": engine.pool.invalid()
+        "invalid": engine.pool.invalid(),
     }
 
 
 def test_database_connection() -> bool:
     """Test database connection.
-    
+
     Returns:
         bool: True if connection is successful, False otherwise
-        
+
     Example:
         if test_database_connection():
             print("Database connection successful")
