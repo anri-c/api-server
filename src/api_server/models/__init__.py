@@ -4,14 +4,14 @@ This module exports all database models and schemas for the API server.
 Import models from here to ensure proper initialization and relationships.
 """
 
-from .item import (
-    Item,
-    ItemBase,
-    ItemCreate,
-    ItemInDB,
-    ItemResponse,
-    ItemUpdate,
-    ItemWithUser,
+from .post import (
+    Post,
+    PostBase,
+    PostCreate,
+    PostInDB,
+    PostResponse,
+    PostUpdate,
+    PostWithUser,
 )
 from .user import User, UserBase, UserCreate, UserInDB, UserResponse, UserUpdate
 
@@ -23,12 +23,12 @@ __all__ = [
     "UserUpdate",
     "UserResponse",
     "UserInDB",
-    # Item models
-    "Item",
-    "ItemBase",
-    "ItemCreate",
-    "ItemUpdate",
-    "ItemResponse",
-    "ItemWithUser",
-    "ItemInDB",
+    # Post models
+    "Post",
+    "PostBase",
+    "PostCreate",
+    "PostUpdate",
+    "PostResponse",
+    "PostWithUser",
+    "PostInDB",
 ]

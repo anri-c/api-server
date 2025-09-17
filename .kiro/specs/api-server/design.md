@@ -37,29 +37,29 @@ api-server/
 │       ├── models/             # SQLModel data models
 │       │   ├── __init__.py
 │       │   ├── user.py
-│       │   └── item.py
+│       │   └── post.py
 │       ├── repositories/       # Data access layer
 │       │   ├── __init__.py
 │       │   ├── user_repository.py
-│       │   └── item_repository.py
+│       │   └── post_repository.py
 │       ├── services/           # Business logic layer
 │       │   ├── __init__.py
 │       │   ├── auth_service.py
-│       │   └── item_service.py
+│       │   └── post_service.py
 │       ├── routers/            # API route handlers
 │       │   ├── __init__.py
 │       │   ├── health.py
 │       │   ├── auth.py
-│       │   └── items.py
+│       │   └── posts.py
 │       └── schemas/            # Pydantic schemas for API
 │           ├── __init__.py
 │           ├── auth_schemas.py
-│           └── item_schemas.py
+│           └── post_schemas.py
 ├── tests/                      # Test files
 │   ├── __init__.py
 │   ├── conftest.py
 │   ├── test_health.py
-│   └── test_items.py
+│   └── test_posts.py
 └── README.md
 ```
 
@@ -139,12 +139,13 @@ from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import datetime
 
-class ItemBase(SQLModel):
-    name: str = Field(max_length=100)
-    description: Optional[str] = None
-    price: float = Field(gt=0)
+class PostBase(SQLModel):
+    title: str = Field(max_length=100)
+    content: Optional[str] = None
+    published: bool = Field(default=False)
+    location: Optional[str] = Field(default=None, max_length=12)
 
-class Item(ItemBase, table=True):
+class Post(PostBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
@@ -157,17 +158,17 @@ class Item(ItemBase, table=True):
 ```python
 from typing import List, Optional
 from sqlmodel import Session, select
-from models.item import Item
+from models.post import Post
 
-class ItemRepository:
+class PostRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
     
-    async def get_all(self) -> List[Item]:
+    async def get_all(self) -> List[Post]:
         # Implementation
         pass
     
-    async def get_by_id(self, item_id: int) -> Optional[Item]:
+    async def get_by_id(self, post_id: int) -> Optional[Post]:
         # Implementation
         pass
 ```
@@ -178,14 +179,14 @@ class ItemRepository:
 
 ```python
 from typing import List, Optional
-from repositories.item_repository import ItemRepository
-from schemas.item_schemas import ItemCreate, ItemUpdate
+from repositories.post_repository import PostRepository
+from schemas.post_schemas import PostCreate, PostUpdate
 
-class ItemService:
-    def __init__(self, repository: ItemRepository) -> None:
+class PostService:
+    def __init__(self, repository: PostRepository) -> None:
         self.repository = repository
     
-    async def create_item(self, item_data: ItemCreate) -> Item:
+    async def create_post(self, post_data: PostCreate) -> Post:
         # Business logic implementation
         pass
 ```
@@ -226,15 +227,15 @@ FastAPIルーターによるエンドポイント定義。依存性注入を活�
 ```python
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from services.item_service import ItemService
+from services.post_service import PostService
 
-router = APIRouter(prefix="/api/items", tags=["items"])
+router = APIRouter(prefix="/api/posts", tags=["posts"])
 
-@router.get("/", response_model=List[ItemResponse])
-async def get_items(
-    service: ItemService = Depends(get_item_service),
+@router.get("/", response_model=List[PostResponse])
+async def get_posts(
+    service: PostService = Depends(get_post_service),
     current_user: User = Depends(get_current_user)
-) -> List[ItemResponse]:
+) -> List[PostResponse]:
     # Endpoint implementation
     pass
 ```
@@ -253,14 +254,15 @@ LINEログインユーザーエンティティ：
 - **created_at**: 作成日時（自動設定）
 - **updated_at**: 更新日時（更新時に自動設定）
 
-### Item Model
+### Post Model
 
-基本的なアイテムエンティティ：
+基本的な投稿エンティティ：
 
 - **id**: 主キー（自動生成）
-- **name**: アイテム名（必須、最大100文字）
-- **description**: アイテム説明（オプション）
-- **price**: 価格（必須、正の数値）
+- **title**: 投稿タイトル（必須、最大100文字）
+- **content**: 投稿内容（オプション）
+- **published**: 公開状態（デフォルト: false）
+- **location**: 位置情報（GEOHASH、オプション、最大12文字）
 - **user_id**: 作成者のユーザーID（外部キー）
 - **created_at**: 作成日時（自動設定）
 - **updated_at**: 更新日時（更新時に自動設定）
@@ -272,10 +274,10 @@ LINEログインユーザーエンティティ：
 - **TokenResponse**: JWTトークンレスポンス用スキーマ
 - **UserResponse**: ユーザー情報レスポンス用スキーマ
 
-#### Item Schemas
-- **ItemCreate**: アイテム作成用スキーマ
-- **ItemUpdate**: アイテム更新用スキーマ
-- **ItemResponse**: API レスポンス用スキーマ
+#### Post Schemas
+- **PostCreate**: 投稿作成用スキーマ
+- **PostUpdate**: 投稿更新用スキーマ
+- **PostResponse**: API レスポンス用スキーマ
 
 ## Error Handling
 
@@ -287,9 +289,9 @@ class APIException(Exception):
         self.status_code = status_code
         self.detail = detail
 
-class ItemNotFoundException(APIException):
-    def __init__(self, item_id: int) -> None:
-        super().__init__(404, f"Item with id {item_id} not found")
+class PostNotFoundException(APIException):
+    def __init__(self, post_id: int) -> None:
+        super().__init__(404, f"Post with id {post_id} not found")
 
 class ValidationException(APIException):
     def __init__(self, detail: str) -> None:

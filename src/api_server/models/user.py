@@ -11,7 +11,7 @@ from sqlalchemy import func
 from sqlmodel import Column, DateTime, Field, Index, Relationship, SQLModel, String
 
 if TYPE_CHECKING:
-    from .item import Item
+    from .post import Post
 
 
 class UserBase(SQLModel):
@@ -81,8 +81,8 @@ class User(UserBase, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    # Relationship to items
-    items: list["Item"] = Relationship(
+    # Relationship to posts
+    posts: list["Post"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "select"}
     )
 

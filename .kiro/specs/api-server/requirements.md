@@ -24,11 +24,11 @@
 #### Acceptance Criteria
 
 1. WHEN a GET request is made to /api/health THEN the system SHALL return a 200 status with health information
-2. WHEN a GET request is made to /api/items THEN the system SHALL return a list of items in JSON format
-3. WHEN a POST request is made to /api/items with valid data THEN the system SHALL create a new item and return 201 status
-4. WHEN a GET request is made to /api/items/{id} THEN the system SHALL return the specific item or 404 if not found
-5. WHEN a PUT request is made to /api/items/{id} with valid data THEN the system SHALL update the item and return 200 status
-6. WHEN a DELETE request is made to /api/items/{id} THEN the system SHALL remove the item and return 204 status
+2. WHEN a GET request is made to /api/posts THEN the system SHALL return a list of posts in JSON format
+3. WHEN a POST request is made to /api/posts with valid data THEN the system SHALL create a new post and return 201 status
+4. WHEN a GET request is made to /api/posts/{id} THEN the system SHALL return the specific post or 404 if not found
+5. WHEN a PUT request is made to /api/posts/{id} with valid data THEN the system SHALL update the post and return 200 status
+6. WHEN a DELETE request is made to /api/posts/{id} THEN the system SHALL remove the post and return 204 status
 
 ### Requirement 3
 

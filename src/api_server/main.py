@@ -29,7 +29,7 @@ from .middleware import (
     RequestLoggingMiddleware,
     SecurityHeadersMiddleware,
 )
-from .routers import auth_router, health_router, items_router
+from .routers import auth_router, health_router, posts_router
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)
@@ -196,11 +196,11 @@ def configure_service_exception_handlers(app: FastAPI) -> None:
     """
     try:
         from .services.auth_service import JWTError, LineAuthError
-        from .services.item_service import (
-            ItemAccessDeniedServiceError,
-            ItemNotFoundServiceError,
-            ItemServiceError,
-            ItemValidationError,
+        from .services.post_service import (
+            PostAccessDeniedServiceError,
+            PostNotFoundServiceError,
+            PostServiceError,
+            PostValidationError,
         )
 
         async def service_exception_handler(
@@ -216,10 +216,10 @@ def configure_service_exception_handlers(app: FastAPI) -> None:
             elif isinstance(
                 exc,
                 (
-                    ItemServiceError,
-                    ItemNotFoundServiceError,
-                    ItemAccessDeniedServiceError,
-                    ItemValidationError,
+                    PostServiceError,
+                    PostNotFoundServiceError,
+                    PostAccessDeniedServiceError,
+                    PostValidationError,
                 ),
             ):
                 api_exc = APIException(
@@ -240,12 +240,12 @@ def configure_service_exception_handlers(app: FastAPI) -> None:
         # Register service exception handlers
         app.add_exception_handler(LineAuthError, service_exception_handler)
         app.add_exception_handler(JWTError, service_exception_handler)
-        app.add_exception_handler(ItemServiceError, service_exception_handler)
-        app.add_exception_handler(ItemNotFoundServiceError, service_exception_handler)
+        app.add_exception_handler(PostServiceError, service_exception_handler)
+        app.add_exception_handler(PostNotFoundServiceError, service_exception_handler)
         app.add_exception_handler(
-            ItemAccessDeniedServiceError, service_exception_handler
+            PostAccessDeniedServiceError, service_exception_handler
         )
-        app.add_exception_handler(ItemValidationError, service_exception_handler)
+        app.add_exception_handler(PostValidationError, service_exception_handler)
 
         logger.info("Service-specific exception handlers registered")
 
@@ -264,7 +264,7 @@ def configure_routers(app: FastAPI) -> None:
     # Register routers in order of priority
     app.include_router(health_router, tags=["health"])
     app.include_router(auth_router, tags=["authentication"])
-    app.include_router(items_router, tags=["items"])
+    app.include_router(posts_router, tags=["posts"])
 
     logger.info("API routers registered successfully")
 
@@ -296,7 +296,7 @@ def configure_root_endpoints(app: FastAPI) -> None:
             "endpoints": {
                 "health": "/api/health",
                 "auth": "/api/auth",
-                "items": "/api/items",
+                "posts": "/api/posts",
             },
         }
 

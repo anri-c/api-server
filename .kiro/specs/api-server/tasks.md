@@ -26,8 +26,8 @@
   - Create database table with appropriate constraints and indexes
   - _Requirements: 4.1, 4.4, 6.4_
 
-- [x] 3.3 Create Item model with user relationships
-  - Implement Item SQLModel with user foreign key relationship
+- [x] 3.3 Create Post model with user relationships
+  - Implement Post SQLModel with user foreign key relationship
   - Add comprehensive type hints and field validation
   - Create database table with proper relationships and constraints
   - _Requirements: 4.1, 4.4, 6.4_
@@ -61,24 +61,24 @@
   - Include comprehensive validation rules for all authentication data
   - _Requirements: 4.1, 4.2, 4.3, 6.4_
 
-- [x] 5.2 Implement item schemas
-  - Create Pydantic schemas for item CRUD operations (Create, Update, Response)
+- [x] 5.2 Implement post schemas
+  - Create Pydantic schemas for post CRUD operations (Create, Update, Response)
   - Add comprehensive validation rules with proper type hints
-  - Include user relationship handling in item schemas
+  - Include user relationship handling in post schemas
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 6.4_
 
 - [-] 6. Implement repository layer
-- [x] 6.1 Create item repository
-  - Implement ItemRepository with full CRUD operations
-  - Add user-scoped item queries (users can only access their own items)
+- [x] 6.1 Create post repository
+  - Implement PostRepository with full CRUD operations
+  - Add user-scoped post queries (users can only access their own posts)
   - Include comprehensive type hints and error handling
   - Add database transaction management
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6, 4.6_
 
 - [-] 7. Implement service layer
-- [x] 7.1 Create item service
-  - Implement ItemService with business logic for item operations
-  - Add user authorization checks for item access
+- [x] 7.1 Create post service
+  - Implement PostService with business logic for post operations
+  - Add user authorization checks for post access
   - Include comprehensive type hints and validation
   - Add proper error handling and business rule enforcement
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6_
@@ -97,10 +97,10 @@
   - Include comprehensive type hints for all endpoint functions
   - _Requirements: 3.1, 3.2, 3.3, 6.4_
 
-- [x] 8.3 Implement item CRUD endpoints
-  - Create items router with full CRUD operations (GET, POST, PUT, DELETE)
-  - Add authentication requirements for all item endpoints
-  - Implement user-scoped operations (users can only manage their own items)
+- [x] 8.3 Implement post CRUD endpoints
+  - Create posts router with full CRUD operations (GET, POST, PUT, DELETE)
+  - Add authentication requirements for all post endpoints
+  - Implement user-scoped operations (users can only manage their own posts)
   - Include proper request/response schemas and error handling
   - Add comprehensive type hints for all endpoint functions
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6, 6.4_
@@ -132,20 +132,20 @@
 - [x] 11.1 Set up test infrastructure
   - Create conftest.py with test database setup and fixtures
   - Implement test client configuration with authentication mocking
-  - Add test data factories for users and items
+  - Add test data factories for users and posts
   - Configure pytest with async support and coverage reporting
   - _Requirements: 6.1, 6.2, 6.3_
 
 - [x] 11.2 Write unit tests for services and repositories
   - Create unit tests for AuthService with mocked LINE API calls
-  - Implement unit tests for UserService and ItemService
-  - Add unit tests for UserRepository and ItemRepository
+  - Implement unit tests for UserService and PostService
+  - Add unit tests for UserRepository and PostRepository
   - Include comprehensive test coverage for all business logic
   - _Requirements: 6.1, 6.2, 6.3_
 
 - [x] 11.3 Write integration tests for API endpoints
   - Create integration tests for authentication endpoints with real database
-  - Implement integration tests for item CRUD endpoints
+  - Implement integration tests for post CRUD endpoints
   - Add tests for error handling and edge cases
   - Include tests for user authorization and data isolation
   - _Requirements: 6.1, 6.2, 6.3_
